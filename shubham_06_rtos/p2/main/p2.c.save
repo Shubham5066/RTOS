@@ -1,0 +1,68 @@
+
+#include<stdio.h>
+#include"freertos/FreeRTOS.h"
+#include"freertos/task.h"
+#include"freertos/timer.h"
+
+TaskHandle_t serial_task1;
+TaskHandle_t serial_task2;
+TaskHandle_t serial_task3;
+
+
+static int taskcore=1;
+
+TimerHandle_t serial_timer1;
+TimerHandle_t serial_timer2;
+TimerHandle_t serial_timer3;
+
+const TickType_t xDelay1=1000 /portTICK_PERIOD_MS;
+const TickType_t xDelay2=2000 /portTICK_PERIOD_MS;
+const TickType_t xDelay3=5000 /portTICK_PERIOD_MS;
+TimerHandle_t serial_timer;
+
+
+void timer_fun(TimerHandle_t serial_timer)
+{
+	printf("\nTimer Fired");
+}
+
+void task_1(void *data)
+{
+	while(1)
+	{
+		vTaskResume(serial_task1);
+		vTaskResume(serial_task2);
+		printf("\nTask 1 is started\n");
+		vtaskDelay(xDelay1);
+	
+
+}
+
+
+void task_2(void *data)
+{
+		printf("\nTask 2 is started\n");
+		vTaskDelay(xDelay2);
+}
+
+void task_3(void *data)
+{
+	printf("\nTimer is started");
+	printf("\nCreating a timer 2");
+	serial_timer=xTimerCreate("one_s_timer",10000 /portTICK_TO_MS,pdTRUE,0,timer_fun);
+	xTimerStart(serial_timer,0);
+	vTaskDelete(serial_task);
+        printf("\nTask 3 is started\n");
+        vTaskDelay(xDelay3);
+
+}
+
+void app_main()
+{
+
+	printf("\nMain Function");
+	xTaskCreatePinnedToCore(Task_1,"task1",2048,NULL,5,serial_task1,taskcore);
+	xTaskCreatePinnedToCore(Task_2,"task2",2048,NULL,6,serial_task2,taskcore);
+ 	xTaskCreatePinnedToCore(Task_3,"task3",2048,NULL,7,serial_task3,taskcore);
+
+}
